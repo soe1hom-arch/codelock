@@ -8,10 +8,19 @@ KEY_ID_FILE = APP_DIR / "key_id"
 CONFIG_FILE = APP_DIR / "config.json"
 
 
+def parse_key(raw: str) -> bytes:
+    raw = raw.strip()
+    if len(raw) == 64:
+        try:
+            return bytes.fromhex(raw)
+        except ValueError:
+            pass
+    return raw.encode("utf-8")
+
+
 def get_or_create_key() -> bytes:
     if "CODELOCK_KEY" in os.environ:
-        raw = os.environ["CODELOCK_KEY"]
-        return raw.encode("utf-8")
+        return parse_key(os.environ["CODELOCK_KEY"])
 
     if KEY_FILE.exists():
         raw = KEY_FILE.read_bytes()
@@ -27,8 +36,7 @@ def get_or_create_key() -> bytes:
 
 def get_key() -> bytes:
     if "CODELOCK_KEY" in os.environ:
-        raw = os.environ["CODELOCK_KEY"]
-        return raw.encode("utf-8")
+        return parse_key(os.environ["CODELOCK_KEY"])
 
     if KEY_FILE.exists():
         return KEY_FILE.read_bytes()
